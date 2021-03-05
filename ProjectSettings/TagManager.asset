@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Junk
   layers:
   - Default
   - TransparentFX
@@ -11,8 +12,8 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
+  - PlayerProjectiles
+  - Enemies
   - 
   - 
   - 
@@ -40,4 +41,25 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: BG
+    uniqueID: 2700336707
+    locked: 0
+  - name: BGParticles
+    uniqueID: 1488376233
+    locked: 0
+  - name: Player
+    uniqueID: 3408774623
+    locked: 0
+  - name: Enemies
+    uniqueID: 1119229307
+    locked: 0
+  - name: Projectiles
+    uniqueID: 446545569
+    locked: 0
+  - name: FGParticles
+    uniqueID: 1629600251
+    locked: 0
+  - name: UI
+    uniqueID: 3932929967
     locked: 0
