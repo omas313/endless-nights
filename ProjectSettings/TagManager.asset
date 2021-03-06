@@ -14,8 +14,8 @@ TagManager:
   - UI
   - PlayerProjectiles
   - Enemies
-  - 
-  - 
+  - EnemySensor
+  - ProjectileCatcher
   - 
   - 
   - 

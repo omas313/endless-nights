@@ -17,15 +17,19 @@ public class LevelManager : MonoBehaviour
 
     [SerializeField] Animation _endPanelAnimation;
     [SerializeField] Animation _fadeInAnimation;
-    [SerializeField] int _maxHealth = 100;
+    [SerializeField] int _maxFear = 100;
     [SerializeField] float _endPanelTimeout = 5f;
 
-    int _currentHealth;
+    int _currentFear;
+    FearPanel _fearPanel;
+    bool _isEnding;
 
     IEnumerator EndLevel()
     {
+        _isEnding = true;
+
         FindObjectOfType<Player>().Deactivate();
-        FindObjectOfType<EnemySpawner>().SpawnEnemies(80);
+        FindObjectOfType<EnemySpawner>().SpawnEnemies(80, 5f);
         yield return new WaitForSeconds(1f);
 
         _endPanelAnimation.GetComponentInChildren<TextMeshProUGUI>().SetText(END_LINES[UnityEngine.Random.Range(0, END_LINES.Length)]);
@@ -54,10 +58,15 @@ public class LevelManager : MonoBehaviour
 
     void EnemyCrossedLine(Enemy enemy)
     {
-        _currentHealth = Math.Max(0, _currentHealth - enemy.Damage);
+        _currentFear = Math.Min(_maxFear, _currentFear + enemy.Damage);
+        _fearPanel.SetFearLevel((float)_currentFear / (float)_maxFear);
+
         Destroy(enemy.gameObject, 1f);
-        StartCoroutine(EndLevel());
+
+        if (_currentFear >= _maxFear && !_isEnding)
+            StartCoroutine(EndLevel());
     }
+
     void OnTriggerEnter2D(Collider2D other)
     {
         EnemyCrossedLine(other.GetComponent<Enemy>());
@@ -65,7 +74,8 @@ public class LevelManager : MonoBehaviour
     
     void Awake()
     {
-        _currentHealth = _maxHealth;
+        _fearPanel = FindObjectOfType<FearPanel>();
+        _fearPanel.SetFearLevel(0f);
     }
 
     [ContextMenu("End Level")]

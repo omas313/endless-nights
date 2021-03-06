@@ -16,9 +16,20 @@ public class Canon : MonoBehaviour
     Transform _junkParent;
     Vector3 _direction;
     bool _canShoot;
+    bool _active = true;
+
+    public void Deactivate()
+    {
+        _canShoot = false;
+        _active = false;
+        _aimLightAnimator.SetBool("InActive", true);
+    }
 
     void Update()
     {
+        if (!_active)
+            return;
+
         HandleAimLightRotation();
 
         if (Input.GetButtonDown("Fire1") && _canShoot)

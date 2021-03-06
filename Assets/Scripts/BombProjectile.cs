@@ -71,42 +71,11 @@ public class BombProjectile : Projectile
 
         InvokeFinishedEvent();
         Destroy(gameObject, 2f);
+    }
 
-        // var toVisitQueue = new Queue<Collider2D>();
-        // var visitedSet = new HashSet<Collider2D>();
-        
-        // var colliders = Physics2D.OverlapCircleAll(transform.position, _explosionRadius, _enemiesLayerMask);
-        // foreach (var collider in colliders)
-        //     toVisitQueue.Enqueue(collider);
-
-        // while (toVisitQueue.Count > 0)
-        // {
-        //     var current = toVisitQueue.Dequeue();
-        //     visitedSet.Add(current);
-
-        //     colliders = Physics2D.OverlapCircleAll(current.transform.position, _explosionRadius, _enemiesLayerMask);
-        //     foreach (var collider in colliders)
-        //         if (!toVisitQueue.Contains(collider) && !visitedSet.Contains(collider))
-        //             toVisitQueue.Enqueue(collider);
-        // }
-
-        // Time.timeScale = 0.2f;
-        // var camera = FindObjectOfType<CinemachineVirtualCamera>();
-        // var previousFollow = camera.Follow;
-        // camera.Follow = transform;
-
-        // foreach (var collider in visitedSet)
-        // {
-        //     if (collider != null)
-        //         collider.GetComponent<Enemy>().TakeHit();
-        //     yield return new WaitForSeconds(UnityEngine.Random.Range(0.025f, 0.075f));
-        // }
-
-        // camera.Follow = previousFollow;
-        // Time.timeScale = 1f;
-
-        // InvokeFinishedEvent();
-        // Destroy(gameObject, 2f);
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        Explode();
     }
 
     void Update()

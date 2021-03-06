@@ -7,7 +7,11 @@ public class Enemy : MonoBehaviour
 {
     const float TAU = 2f * (float)Math.PI;
 
+    public int Damage => _damage;
+
     [SerializeField] ParticleSystem _explosionParticles;
+    [SerializeField] int _damage = 5;
+
     private float _yOffset;
     float _amplitude = 0f;
     float _period = 0f;

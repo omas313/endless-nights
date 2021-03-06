@@ -19,12 +19,12 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] float _maxMoveSpeed = 1f;
     [SerializeField] float yOffset = 2.5f;
 
-    public void SpawnEnemies(int count)
+    public void SpawnEnemies(int count, float speed = 0f)
     {
-        StartCoroutine(SpawnEnemiesWithDelay(count));
+        StartCoroutine(SpawnEnemiesWithDelay(count, speed));
     }
 
-    IEnumerator SpawnEnemiesWithDelay(int count)
+    IEnumerator SpawnEnemiesWithDelay(int count, float speed)
     {
         for (var i = 0; i < count; i++)
         {
@@ -36,7 +36,7 @@ public class EnemySpawner : MonoBehaviour
                 position.y,
                 UnityEngine.Random.Range(_minAmplitude, _maxAmplitude) * Mathf.Abs(position.y / yOffset),
                 UnityEngine.Random.Range(_minPeriod, _maxPeriod),
-                UnityEngine.Random.Range(_minMoveSpeed, _maxMoveSpeed)
+                speed == 0f ? UnityEngine.Random.Range(_minMoveSpeed, _maxMoveSpeed) : speed
             ); 
             enemy.Move();
         }
