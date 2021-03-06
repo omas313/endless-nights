@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Canon : MonoBehaviour
 {
-    [SerializeField] LineRenderer _line;
+    [SerializeField] Transform _aimRoot;
     [SerializeField] Transform _debugMarker;
     [SerializeField] Transform _shotPoint;
     [SerializeField] float _maxLineLength = 2f;
@@ -14,7 +14,7 @@ public class Canon : MonoBehaviour
     [SerializeField] Projectile _projectilePrefab;
 
     Transform _junkParent;
-    Vector3 _lineDirection;
+    Vector3 _direction;
     float _shotCooldownTimer;
     float _chargeTimer;
     float _lineLength = 0f;
@@ -22,41 +22,40 @@ public class Canon : MonoBehaviour
 
     void Update()
     {
-        HandleLineRendererPositioning();
+        HandleAimLightRotation();
 
         if (Input.GetButtonDown("Fire1") && _canShoot)
             ShootProjectile();
     }
 
-    void HandleLineRendererPositioning()
+    void HandleAimLightRotation()
     {
         var mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mouseWorldPosition.z = 0;
         _debugMarker.position = mouseWorldPosition;
 
-        var lineDirectionTest = (mouseWorldPosition - _line.transform.position).normalized;
-        lineDirectionTest.x *= transform.localScale.x;
+        var directionTest = (mouseWorldPosition - _aimRoot.transform.position).normalized;
+        var testAngle = Vector2.SignedAngle(directionTest, Vector2.right);
+        var zRotation = Mathf.Clamp(testAngle, _minShotAngle, _maxShotAngle);
+        _aimRoot.localRotation = Quaternion.Euler(0f, 0f, -zRotation);
         
-        var testAngle = Vector2.SignedAngle(lineDirectionTest, Vector2.up);
-        // Debug.Log(testAngle);
-        SetShootingDirection(WithinAllowedAngle(testAngle) ? lineDirectionTest : _lineDirection);
-    }
-
-    private void SetShootingDirection(Vector3 lineDirectionTest)
-    {
-        _lineDirection = lineDirectionTest;
-        var lineEndPoint = _lineDirection * _lineLength;
-        _line.SetPosition(1, lineDirectionTest * _maxLineLength);
+        if (WithinAllowedAngle(testAngle))
+            _direction = directionTest;
     }
 
     bool WithinAllowedAngle(float angle) => angle >= _minShotAngle && angle <= _maxShotAngle;
-    
+    private void SetShootingDirection(Vector3 lineDirectionTest)
+    {
+        _direction = lineDirectionTest;
+        var lineEndPoint = _direction * _lineLength;
+    }
+
     void ShootProjectile()
     {
         _canShoot = false;
 
         var projectile = Instantiate(_projectilePrefab, _shotPoint.position, Quaternion.identity, _junkParent);
-        var velocityUnitVector = new Vector2(_lineDirection.x, _lineDirection.y).normalized;
+        var velocityUnitVector = new Vector2(_direction.x, _direction.y).normalized;
 
         projectile.Finished += OnProjectileFinished;
         projectile.SetDirection(velocityUnitVector);
