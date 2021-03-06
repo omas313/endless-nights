@@ -8,16 +8,12 @@ public class Canon : MonoBehaviour
     [SerializeField] Transform _aimRoot;
     [SerializeField] Transform _debugMarker;
     [SerializeField] Transform _shotPoint;
-    [SerializeField] float _maxLineLength = 2f;
     [SerializeField] float _minShotAngle = 0f;
     [SerializeField] float _maxShotAngle = 180f;
     [SerializeField] Projectile _projectilePrefab;
 
     Transform _junkParent;
     Vector3 _direction;
-    float _shotCooldownTimer;
-    float _chargeTimer;
-    float _lineLength = 0f;
     bool _canShoot;
 
     void Update()
@@ -44,11 +40,6 @@ public class Canon : MonoBehaviour
     }
 
     bool WithinAllowedAngle(float angle) => angle >= _minShotAngle && angle <= _maxShotAngle;
-    private void SetShootingDirection(Vector3 lineDirectionTest)
-    {
-        _direction = lineDirectionTest;
-        var lineEndPoint = _direction * _lineLength;
-    }
 
     void ShootProjectile()
     {
