@@ -11,6 +11,7 @@ public class Canon : MonoBehaviour
     [SerializeField] float _minShotAngle = 0f;
     [SerializeField] float _maxShotAngle = 180f;
     [SerializeField] Projectile _projectilePrefab;
+    [SerializeField] Animator _aimLightAnimator;
 
     Transform _junkParent;
     Vector3 _direction;
@@ -45,6 +46,8 @@ public class Canon : MonoBehaviour
     {
         _canShoot = false;
 
+        _aimLightAnimator.SetBool("InActive", true);
+
         var projectile = Instantiate(_projectilePrefab, _shotPoint.position, Quaternion.identity, _junkParent);
         var velocityUnitVector = new Vector2(_direction.x, _direction.y).normalized;
 
@@ -56,6 +59,7 @@ public class Canon : MonoBehaviour
     void OnProjectileFinished(Projectile projectile)
     {
         _canShoot = true;
+        _aimLightAnimator.SetBool("InActive", false);
         projectile.Finished -= OnProjectileFinished;
     }
 
