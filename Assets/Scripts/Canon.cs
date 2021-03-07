@@ -18,6 +18,13 @@ public class Canon : MonoBehaviour
     bool _canShoot;
     bool _active = true;
 
+    public void Activate()
+    {
+        _canShoot = true;
+        _active = true;
+        _aimLightAnimator.SetBool("InActive", false);
+    }
+
     public void Deactivate()
     {
         _canShoot = false;

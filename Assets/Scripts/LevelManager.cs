@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
@@ -17,18 +16,24 @@ public class LevelManager : MonoBehaviour
 
     [SerializeField] Animation _endPanelAnimation;
     [SerializeField] Animation _fadeInAnimation;
+    [SerializeField] Animation _bgLightAnimation;
     [SerializeField] int _maxFear = 100;
     [SerializeField] float _endPanelTimeout = 5f;
+    [SerializeField] TextMeshProUGUI _scoreText;
 
+    int _score;
     int _currentFear;
     FearPanel _fearPanel;
     bool _isEnding;
+    Player _player;
+    private TextLinesPlayer _textLinesPlayer;
 
     IEnumerator EndLevel()
     {
         _isEnding = true;
 
-        FindObjectOfType<Player>().Deactivate();
+        _bgLightAnimation.Play();
+        _player.Deactivate();
         FindObjectOfType<EnemySpawner>().SpawnEnemies(80, 5f);
         yield return new WaitForSeconds(1f);
 
@@ -53,6 +58,10 @@ public class LevelManager : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
         yield return new WaitUntil(() => !_fadeInAnimation.isPlaying);
 
+        var highscore = PlayerPrefs.GetInt("hs");
+        if (_score > highscore)
+            PlayerPrefs.SetInt("hs", _score);
+
         SceneManager.LoadScene("MainMenu");
     }
 
@@ -67,15 +76,59 @@ public class LevelManager : MonoBehaviour
             StartCoroutine(EndLevel());
     }
 
+    void SetScore(int score)
+    {
+        _score = score;
+        _scoreText.SetText(_score.ToString());
+    }
+
+    void AddScore(int amount)
+    {
+        _score += amount;
+        _scoreText.SetText(_score.ToString());
+    }
+
+    void OnTextLinesFinished()
+    {
+        FindObjectOfType<Canon>().Activate();
+        // start spawner
+    }
+
     void OnTriggerEnter2D(Collider2D other)
     {
         EnemyCrossedLine(other.GetComponent<Enemy>());
+    }
+
+    void OnDestroy()
+    {
+        Enemy.Died -= AddScore;
+        BombProjectile.Chain -= AddScore;
+        _textLinesPlayer.Finished -= OnTextLinesFinished;
     }
     
     void Awake()
     {
         _fearPanel = FindObjectOfType<FearPanel>();
         _fearPanel.SetFearLevel(0f);
+        _player = FindObjectOfType<Player>();
+        _textLinesPlayer = FindObjectOfType<TextLinesPlayer>();
+        
+        SetScore(_score);
+
+        var isFirstTime = PlayerPrefs.GetInt("ft") == 0;
+        if (isFirstTime)
+        {
+            FindObjectOfType<Canon>().Deactivate();
+            _textLinesPlayer.Finished += OnTextLinesFinished;
+            StartCoroutine(_textLinesPlayer.PlayLines());
+            PlayerPrefs.SetInt("ft", 1);
+        }
+
+        Enemy.Died += AddScore;
+        Enemy.Died += AddScore;
+        BombProjectile.Chain += AddScore;
+
+        // start spawner
     }
 
     [ContextMenu("End Level")]

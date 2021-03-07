@@ -8,8 +8,6 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] Transform _spawnPoint;
     [SerializeField] Transform _enemiesParent;
 
-    
-
     [Header("Enemy Stats")]
     [SerializeField] float _minAmplitude = 0.2f;
     [SerializeField] float _maxAmplitude = 3f;

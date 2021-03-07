@@ -1,13 +1,15 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class MainMenuController : MonoBehaviour
 {
     [SerializeField] Animation _fadeInAnimation;
     [SerializeField] Animation _cameraAnimation;
     [SerializeField] Animation _clickToStartCanvasAnimation;
+    [SerializeField] CanvasGroup _highscorePanel;
+    [SerializeField] TextMeshProUGUI _highscoreText;
     
     bool _isLoading;
 
@@ -29,5 +31,15 @@ public class MainMenuController : MonoBehaviour
     {
         if (Input.GetButtonDown("Fire1") && !_isLoading)
             StartCoroutine(LoadLevel());
+    }
+
+    void Awake()
+    {
+        var highscore = PlayerPrefs.GetInt("hs");
+        if (highscore > 0)
+        {
+            _highscorePanel.alpha = 1f;
+            _highscoreText.SetText(highscore.ToString());
+        }
     }
 }

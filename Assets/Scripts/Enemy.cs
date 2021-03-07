@@ -1,16 +1,18 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    public static event Action<int> Died;
+
     const float TAU = 2f * (float)Math.PI;
 
     public int Damage => _damage;
 
     [SerializeField] ParticleSystem _explosionParticles;
     [SerializeField] int _damage = 5;
+    [SerializeField] int _scoreForKill = 5;
 
     private float _yOffset;
     float _amplitude = 0f;
@@ -50,6 +52,7 @@ public class Enemy : MonoBehaviour
         GetComponent<Collider2D>().enabled = false;
 
         _explosionParticles.Play();
+        Died?.Invoke(_scoreForKill);
         yield return new WaitForSeconds(1.2f);
         Destroy(gameObject);
     }

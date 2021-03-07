@@ -6,6 +6,8 @@ using Cinemachine;
 
 public class BombProjectile : Projectile
 {
+    public static event Action<int> Chain;
+
     [SerializeField] float _explosionRadius = 1f;
     [SerializeField] LayerMask _enemiesLayerMask;
 
@@ -37,33 +39,43 @@ public class BombProjectile : Projectile
 
     IEnumerator ChainExplosion()
     {
-        var toVisitQueue = new Queue<Collider2D>();
+        var toDestroy = new Queue<Collider2D>();
         
         var colliders = Physics2D.OverlapCircleAll(transform.position, _explosionRadius, _enemiesLayerMask);
         foreach (var collider in colliders)
-            toVisitQueue.Enqueue(collider);
+            toDestroy.Enqueue(collider);
 
         var camera = FindObjectOfType<CinemachineVirtualCamera>();
         var previousFollow = camera.Follow;
 
-        while (toVisitQueue.Count > 0)
+        int totalCount = colliders.Length;
+        while (toDestroy.Count > 0)
         {
-            var current = toVisitQueue.Dequeue();
+            var current = toDestroy.Dequeue();
             
             current.GetComponent<Enemy>().TakeHit();
             yield return new WaitForSeconds(UnityEngine.Random.Range(0.0125f, 0.025f));
 
             colliders = Physics2D.OverlapCircleAll(current.transform.position, _explosionRadius, _enemiesLayerMask);
 
-            if (colliders.Length > 0 && camera.Follow != transform)
+            foreach (var collider in colliders)
+                if (collider != null && !toDestroy.Contains(collider))
+                {
+                    toDestroy.Enqueue(collider);
+                    totalCount++;
+                }
+
+            if (totalCount > 2)
             {
                 Time.timeScale = 0.2f;
                 camera.Follow = transform;
             }
+        }
 
-            foreach (var collider in colliders)
-                if (collider != null && !toVisitQueue.Contains(collider))
-                    toVisitQueue.Enqueue(collider);
+        if (totalCount > 2)
+        {
+            // Debug.Log($"chain: {totalCount}");
+            Chain?.Invoke(totalCount * 5);
         }
 
         camera.Follow = previousFollow;
