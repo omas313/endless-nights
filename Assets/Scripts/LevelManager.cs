@@ -115,7 +115,8 @@ public class LevelManager : MonoBehaviour
         FindObjectOfType<Canon>().Activate();
         _textLinesPlayer.Finished -= OnTextLinesFinished;
 
-        // start spawner
+        _currentLevel = 0;
+        AdvanceLevel();
     }
 
     void OnEnemyDied(int scoreAmount)
@@ -184,9 +185,7 @@ public class LevelManager : MonoBehaviour
         Enemy.Died += OnEnemyDied;
         BombProjectile.Chain += AddScore;
         
-        _currentLevel = 0;
         _enemySpawner = FindObjectOfType<EnemySpawner>();
-        AdvanceLevel();
     }
 
     [ContextMenu("Spawn enemies")]
