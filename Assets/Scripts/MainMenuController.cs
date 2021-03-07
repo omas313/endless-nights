@@ -10,6 +10,7 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] Animation _clickToStartCanvasAnimation;
     [SerializeField] CanvasGroup _highscorePanel;
     [SerializeField] TextMeshProUGUI _highscoreText;
+    [SerializeField] AudioSource _audioSource;
     
     bool _isLoading;
 
@@ -20,8 +21,14 @@ public class MainMenuController : MonoBehaviour
         _clickToStartCanvasAnimation.Play();
         _cameraAnimation.Play();
         _fadeInAnimation.Play();
+        
+        while (_audioSource.volume > 0.05f)
+        {
+            _audioSource.volume -= Time.deltaTime;
+            yield return null;
+        }
 
-        yield return new WaitForSeconds(0.1f);
+        GetComponent<AudioSource>().Play();
         yield return new WaitUntil(() => !_fadeInAnimation.isPlaying);
 
         SceneManager.LoadScene("Level");
