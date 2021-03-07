@@ -51,7 +51,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _explosionParticles: {fileID: 841513186245340579}
   _damage: 5
-  _scoreForKill: 5
+  _scoreForKill: 1
   _deathAudioClips:
   - {fileID: 8300000, guid: 5079c61570aaf4e42a93f121903d189e, type: 3}
   - {fileID: 8300000, guid: 464f4ed6530be324e8b512b894868005, type: 3}

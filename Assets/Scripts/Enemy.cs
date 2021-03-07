@@ -35,6 +35,13 @@ public class Enemy : MonoBehaviour
         StartCoroutine(DestroySelf());
     }
 
+    public void CrossTheLine()
+    {
+        GetComponentInChildren<SpriteRenderer>().enabled = false;
+        GetComponent<Collider2D>().enabled = false;
+        Destroy(gameObject, 1f);
+    }
+
     public void Move()
     {
         _shouldMove = true;
@@ -59,7 +66,7 @@ public class Enemy : MonoBehaviour
         yield return new WaitForSeconds(1.2f);
         Destroy(gameObject);
     }
-
+    
     void Update()
     {
         if (_shouldMove)

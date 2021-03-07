@@ -78,7 +78,7 @@ public class BombProjectile : Projectile
         if (totalCount > 2)
         {
             // Debug.Log($"chain: {totalCount}");
-            Chain?.Invoke(totalCount * 5);
+            Chain?.Invoke(totalCount * 3);
         }
 
         camera.Follow = previousFollow;

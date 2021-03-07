@@ -21,13 +21,21 @@ public class LevelManager : MonoBehaviour
     [SerializeField] float _endPanelTimeout = 5f;
     [SerializeField] TextMeshProUGUI _scoreText;
     [SerializeField] AudioSource _musicSource;
+    [SerializeField] AudioClip[] _lineCrossAudioClips;
+    [SerializeField] float _enemySpawnMultiplierPerLevel = 2.5f;
 
+    TextLinesPlayer _textLinesPlayer;
+    FearPanel _fearPanel;
+    Player _player;
+    EnemySpawner _enemySpawner;
+    AudioSource _audioSource;
+    
     int _score;
     int _currentFear;
-    FearPanel _fearPanel;
     bool _isEnding;
-    Player _player;
-    private TextLinesPlayer _textLinesPlayer;
+    int _currentLevel;
+    int _currentEnemyCount;
+    bool _isAdvancing;
 
     IEnumerator EndLevel()
     {
@@ -35,7 +43,7 @@ public class LevelManager : MonoBehaviour
 
         _bgLightAnimation.Play();
         _player.Deactivate();
-        FindObjectOfType<EnemySpawner>().SpawnEnemies(80, 5f);
+        FindObjectOfType<EnemySpawner>().SpawnEnemies(20, 20, 5);
         yield return new WaitForSeconds(1f);
 
         _endPanelAnimation.GetComponentInChildren<TextMeshProUGUI>().SetText(END_LINES[UnityEngine.Random.Range(0, END_LINES.Length)]);
@@ -78,10 +86,16 @@ public class LevelManager : MonoBehaviour
         _currentFear = Math.Min(_maxFear, _currentFear + enemy.Damage);
         _fearPanel.SetFearLevel((float)_currentFear / (float)_maxFear);
 
-        Destroy(enemy.gameObject, 1f);
+        enemy.CrossTheLine();
+        _currentEnemyCount--;
+        
+        if (!_isEnding)
+            _audioSource.PlayOneShot(_lineCrossAudioClips[UnityEngine.Random.Range(0, _lineCrossAudioClips.Length)]);
 
         if (_currentFear >= _maxFear && !_isEnding)
             StartCoroutine(EndLevel());
+        else if (_currentEnemyCount <= 0)
+            AdvanceLevel();
     }
 
     void SetScore(int score)
@@ -99,7 +113,42 @@ public class LevelManager : MonoBehaviour
     void OnTextLinesFinished()
     {
         FindObjectOfType<Canon>().Activate();
+        _textLinesPlayer.Finished -= OnTextLinesFinished;
+
         // start spawner
+    }
+
+    void OnEnemyDied(int scoreAmount)
+    {
+        AddScore(scoreAmount);
+        
+        _currentEnemyCount--;
+
+        if (_currentEnemyCount <= 0)
+            AdvanceLevel();
+    }
+
+    void AdvanceLevel()
+    {
+        if (_isAdvancing)
+            return;
+        
+        // Debug.Log($"advancing level, {_currentLevel} -> {_currentLevel + 1}");
+
+        _isAdvancing = true;
+        _currentLevel++;
+
+        var newCount = GetEnemyCountForLevel(_currentLevel);
+        _currentEnemyCount = newCount;
+
+        _enemySpawner.SpawnEnemies(_currentLevel, newCount);
+
+        _isAdvancing = false;
+    }
+
+    int GetEnemyCountForLevel(int level)
+    {
+        return (int)Math.Ceiling(level * _enemySpawnMultiplierPerLevel);
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -109,9 +158,8 @@ public class LevelManager : MonoBehaviour
 
     void OnDestroy()
     {
-        Enemy.Died -= AddScore;
+        Enemy.Died -= OnEnemyDied;
         BombProjectile.Chain -= AddScore;
-        _textLinesPlayer.Finished -= OnTextLinesFinished;
     }
     
     void Awake()
@@ -120,6 +168,7 @@ public class LevelManager : MonoBehaviour
         _fearPanel.SetFearLevel(0f);
         _player = FindObjectOfType<Player>();
         _textLinesPlayer = FindObjectOfType<TextLinesPlayer>();
+        _audioSource = GetComponent<AudioSource>();
         
         SetScore(_score);
 
@@ -132,11 +181,18 @@ public class LevelManager : MonoBehaviour
             PlayerPrefs.SetInt("ft", 1);
         }
 
-        Enemy.Died += AddScore;
-        Enemy.Died += AddScore;
+        Enemy.Died += OnEnemyDied;
         BombProjectile.Chain += AddScore;
+        
+        _currentLevel = 0;
+        _enemySpawner = FindObjectOfType<EnemySpawner>();
+        AdvanceLevel();
+    }
 
-        // start spawner
+    [ContextMenu("Spawn enemies")]
+    public void SpawnEnemiesTest() 
+    {
+        AdvanceLevel();
     }
 
     [ContextMenu("End Level")]

@@ -20,26 +20,33 @@ public class EnemySpawner : MonoBehaviour
 
     AudioSource _audioSource;
 
-    public void SpawnEnemies(int count, float speed = 0f)
+    public void SpawnEnemies(int level, int count, float speed = 0f)
     {
-        StartCoroutine(SpawnEnemiesWithDelay(count, speed));
+        StartCoroutine(SpawnEnemiesWithDelay(level, count, speed));
     }
 
-    IEnumerator SpawnEnemiesWithDelay(int count, float speed)
+    IEnumerator SpawnEnemiesWithDelay(int level, int count, float speed)
     {
+        if (_audioSource == null)
+            _audioSource = GetComponent<AudioSource>();
+
         _audioSource.PlayOneShot(_spawnAudioClips[UnityEngine.Random.Range(0, _spawnAudioClips.Length)]);
+
+        var maxAmplitude = Mathf.Clamp(UnityEngine.Random.Range(_minAmplitude, _minAmplitude + level / 5f), _minAmplitude, _maxAmplitude);
+        var maxPeriod = Mathf.Clamp(UnityEngine.Random.Range(_minPeriod, _minPeriod + level / 10f), _minPeriod, _maxPeriod);
+        var maxMoveSpeed = Mathf.Clamp(UnityEngine.Random.Range(_minMoveSpeed, _minMoveSpeed + level / 2f), _minMoveSpeed, _maxMoveSpeed);
 
         for (var i = 0; i < count; i++)
         {
-            yield return new WaitForSeconds(UnityEngine.Random.Range(0f, 0.5f));
+            yield return new WaitForSeconds(UnityEngine.Random.Range(0f, 0.4f));
             
             var position = GetRandomPositionOnY();
             var enemy = Instantiate(_enemyPrefab, position, Quaternion.identity, _enemiesParent);
             enemy.RandomiseMovement(
                 position.y,
-                UnityEngine.Random.Range(_minAmplitude, _maxAmplitude) * Mathf.Abs(position.y / yOffset),
-                UnityEngine.Random.Range(_minPeriod, _maxPeriod),
-                speed == 0f ? UnityEngine.Random.Range(_minMoveSpeed, _maxMoveSpeed) : speed
+                UnityEngine.Random.Range(_minAmplitude, maxAmplitude) * Mathf.Abs(position.y / yOffset),
+                UnityEngine.Random.Range(_minPeriod, maxPeriod),
+                speed == 0f ? UnityEngine.Random.Range(_minMoveSpeed, maxMoveSpeed) : speed
             ); 
             enemy.Move();
         }
@@ -49,15 +56,4 @@ public class EnemySpawner : MonoBehaviour
         _spawnPoint.position.x, 
         UnityEngine.Random.Range(-yOffset, yOffset),
         0f);
-
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-            SpawnEnemies(10);        
-    }
-
-    private void Awake()
-    {
-        _audioSource = GetComponent<AudioSource>();
-    }
 }
