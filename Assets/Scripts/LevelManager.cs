@@ -46,6 +46,10 @@ public class LevelManager : MonoBehaviour
         FindObjectOfType<EnemySpawner>().SpawnEnemies(20, 20, 5);
         yield return new WaitForSeconds(1f);
 
+        var bomb = FindObjectOfType<BombProjectile>();
+        if (bomb != null)
+            Destroy(bomb.gameObject);
+
         _endPanelAnimation.GetComponentInChildren<TextMeshProUGUI>().SetText(END_LINES[UnityEngine.Random.Range(0, END_LINES.Length)]);
         _endPanelAnimation.Play();
 
@@ -170,8 +174,11 @@ public class LevelManager : MonoBehaviour
         _player = FindObjectOfType<Player>();
         _textLinesPlayer = FindObjectOfType<TextLinesPlayer>();
         _audioSource = GetComponent<AudioSource>();
+        _enemySpawner = FindObjectOfType<EnemySpawner>();
         
         SetScore(_score);
+        Enemy.Died += OnEnemyDied;
+        BombProjectile.Chain += AddScore;
 
         var isFirstTime = PlayerPrefs.GetInt("ft") == 0;
         if (isFirstTime)
@@ -181,11 +188,11 @@ public class LevelManager : MonoBehaviour
             StartCoroutine(_textLinesPlayer.PlayLines());
             PlayerPrefs.SetInt("ft", 1);
         }
-
-        Enemy.Died += OnEnemyDied;
-        BombProjectile.Chain += AddScore;
-        
-        _enemySpawner = FindObjectOfType<EnemySpawner>();
+        else
+        {
+            _currentLevel = 0;
+            AdvanceLevel();
+        }
     }
 
     [ContextMenu("Spawn enemies")]
