@@ -13,6 +13,9 @@ public class Canon : MonoBehaviour
     [SerializeField] Projectile _projectilePrefab;
     [SerializeField] Animator _aimLightAnimator;
 
+    [SerializeField] AudioClip[] _shotAudioClips;
+
+    AudioSource _audioSource;
     Transform _junkParent;
     Vector3 _direction;
     bool _canShoot;
@@ -64,6 +67,7 @@ public class Canon : MonoBehaviour
     {
         _canShoot = false;
 
+        _audioSource.PlayOneShot(_shotAudioClips[UnityEngine.Random.Range(0, _shotAudioClips.Length)]);
         _aimLightAnimator.SetBool("InActive", true);
 
         var projectile = Instantiate(_projectilePrefab, _shotPoint.position, Quaternion.identity, _junkParent);
@@ -85,5 +89,6 @@ public class Canon : MonoBehaviour
     {
         _canShoot = true;
         _junkParent = GameObject.FindWithTag("Junk").transform;
+        _audioSource = GetComponent<AudioSource>();
     }
 }

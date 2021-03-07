@@ -4,17 +4,18 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    public static event Action<int> Died;
-
     const float TAU = 2f * (float)Math.PI;
+
+    public static event Action<int> Died;
 
     public int Damage => _damage;
 
     [SerializeField] ParticleSystem _explosionParticles;
     [SerializeField] int _damage = 5;
     [SerializeField] int _scoreForKill = 5;
+    [SerializeField] AudioClip[] _deathAudioClips;
 
-    private float _yOffset;
+    float _yOffset;
     float _amplitude = 0f;
     float _period = 0f;
     float _moveSpeed = 0f;
@@ -50,6 +51,8 @@ public class Enemy : MonoBehaviour
         _shouldMove = false;
         GetComponentInChildren<SpriteRenderer>().enabled = false;
         GetComponent<Collider2D>().enabled = false;
+
+        GetComponent<AudioSource>().PlayOneShot(_deathAudioClips[UnityEngine.Random.Range(0, _deathAudioClips.Length)]);
 
         _explosionParticles.Play();
         Died?.Invoke(_scoreForKill);

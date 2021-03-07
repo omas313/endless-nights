@@ -16,6 +16,9 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] float _minMoveSpeed = 0.2f;
     [SerializeField] float _maxMoveSpeed = 1f;
     [SerializeField] float yOffset = 2.5f;
+    [SerializeField] AudioClip[] _spawnAudioClips;
+
+    AudioSource _audioSource;
 
     public void SpawnEnemies(int count, float speed = 0f)
     {
@@ -24,6 +27,8 @@ public class EnemySpawner : MonoBehaviour
 
     IEnumerator SpawnEnemiesWithDelay(int count, float speed)
     {
+        _audioSource.PlayOneShot(_spawnAudioClips[UnityEngine.Random.Range(0, _spawnAudioClips.Length)]);
+
         for (var i = 0; i < count; i++)
         {
             yield return new WaitForSeconds(UnityEngine.Random.Range(0f, 0.5f));
@@ -49,5 +54,10 @@ public class EnemySpawner : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
             SpawnEnemies(10);        
+    }
+
+    private void Awake()
+    {
+        _audioSource = GetComponent<AudioSource>();
     }
 }

@@ -20,6 +20,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] int _maxFear = 100;
     [SerializeField] float _endPanelTimeout = 5f;
     [SerializeField] TextMeshProUGUI _scoreText;
+    [SerializeField] AudioSource _musicSource;
 
     int _score;
     int _currentFear;
@@ -55,6 +56,13 @@ public class LevelManager : MonoBehaviour
         }
 
         _fadeInAnimation.Play();
+
+        while (_musicSource.volume > 0.05f)
+        {
+            _musicSource.volume -= Time.deltaTime;
+            yield return null;
+        }
+
         yield return new WaitForSeconds(0.1f);
         yield return new WaitUntil(() => !_fadeInAnimation.isPlaying);
 

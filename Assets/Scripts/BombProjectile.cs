@@ -10,6 +10,7 @@ public class BombProjectile : Projectile
 
     [SerializeField] float _explosionRadius = 1f;
     [SerializeField] LayerMask _enemiesLayerMask;
+    [SerializeField] AudioClip[] _explosionAudioClips;
 
     bool _isExploding;
 
@@ -30,6 +31,8 @@ public class BombProjectile : Projectile
 
         rigidbodyComp.velocity = Vector2.zero;
         GetComponentInChildren<SpriteRenderer>().enabled = false;
+        
+        GetComponent<AudioSource>().PlayOneShot(_explosionAudioClips[UnityEngine.Random.Range(0, _explosionAudioClips.Length)]);
 
         if (collisionParticles != null)
             Instantiate(collisionParticles, transform.position, Quaternion.identity, GameObject.FindWithTag("Junk").transform);
